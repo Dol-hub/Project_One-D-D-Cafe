@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+
+body {
+    font-family: 'Kanit', sans-serif;
+    background-color: #fff8f0;
+    color: #3e2723;
+}
+
+#main_title {
+    text-align: center;
+    background-color: #d7ccc8;
+    color: #4e342e;
+    padding: 30px;
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    border-bottom: 5px solid #a1887f;
+}
+
+.box1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.box1 h2 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #5d4037;
+}
+
+.box1 button {
+    background-color: #6d4c41;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+}
+
+.box1 button:hover {
+    background-color: #5d4037;
+}
+
+.container {
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #fff3e0;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.table {
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table th {
+    background-color: #a1887f;
+    color: white;
+    text-align: center;
+}
+
+.table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.btn {
+    border-radius: 20px;
+    padding: 6px 14px;
+}
+
+.btn-success {
+    background-color: #388e3c;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #d32f2f;
+    border: none;
+}
+
+h6 {
+    text-align: center;
+    color: red;
+    margin-top: 10px;
+}
+
+h7 {
+    text-align: center;
+    color: green;
+}
+
+.modal-content {
+    background-color: #fff8f0;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #4e342e;
+}
