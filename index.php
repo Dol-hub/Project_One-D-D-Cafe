@@ -9,8 +9,8 @@ if (!isset($_SESSION['user_id'])) {
 include('dbconn.php');
 include('header.php');
 
-$selectedCategory = isset($_GET['category']) ? $_GET['category'] : 'ทั้งหมด';
-$searchKeyword = isset($_GET['search']) ? trim($_GET['search']) : '';
+$selectedCategory = $_GET['category'] ?? 'ทั้งหมด';
+$searchKeyword = trim($_GET['search'] ?? '');
 $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตาเลี่ยนโซดา', 'นม', 'เมนูปั่น', 'เมนูพิเศษ', 'เมนูปังเย็น'];
 ?>
 
@@ -24,30 +24,30 @@ $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตา�
 
     <div class="box1">
         <h2>เมนูทั้งหมด</h2>
-        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">เพิ่มเมนูอาหาร</button>
+        <?php if ($_SESSION['role'] === 'admin'): ?>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">เพิ่มเมนูเครื่องดื่ม</button>
         <?php endif; ?>
     </div>
 
     <!-- ปุ่มกรองหมวดหมู่ -->
     <div class="mb-4 text-center">
-      <?php foreach ($categories as $cat): ?>
-        <a href="index.php<?= $cat !== 'ทั้งหมด' ? '?category=' . urlencode($cat) : '' ?>" 
-           class="btn btn<?= $selectedCategory === $cat ? ' btn-dark' : ' btn-outline-dark' ?> m-1">
-           <?= htmlspecialchars($cat) ?>
-        </a>
-      <?php endforeach; ?>
+        <?php foreach ($categories as $cat): ?>
+            <a href="index.php<?= $cat !== 'ทั้งหมด' ? '?category=' . urlencode($cat) : '' ?>" 
+               class="btn btn<?= $selectedCategory === $cat ? ' btn-dark' : ' btn-outline-dark' ?> m-1">
+               <?= htmlspecialchars($cat) ?>
+            </a>
+        <?php endforeach; ?>
     </div>
 
     <!-- แบบฟอร์มค้นหา -->
     <div class="mb-4 text-center">
-      <form method="GET" action="index.php" class="d-inline-flex">
-        <?php if ($selectedCategory !== 'ทั้งหมด'): ?>
-          <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory) ?>">
-        <?php endif; ?>
-        <input type="text" name="search" class="form-control me-2" placeholder="ค้นหาเมนู..." value="<?= htmlspecialchars($searchKeyword) ?>">
-        <button type="submit" class="btn btn-outline-success">ค้นหา</button>
-      </form>
+        <form method="GET" action="index.php" class="d-inline-flex">
+            <?php if ($selectedCategory !== 'ทั้งหมด'): ?>
+                <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory) ?>">
+            <?php endif; ?>
+            <input type="text" name="search" class="form-control me-2" placeholder="ค้นหาเมนู..." value="<?= htmlspecialchars($searchKeyword) ?>">
+            <button type="submit" class="btn btn-outline-success">ค้นหา</button>
+        </form>
     </div>
 
     <!-- ปุ่มออกจากระบบ -->
@@ -62,7 +62,9 @@ $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตา�
                 <th>หมวดหมู่</th>
                 <th>ราคา (บาท)</th>
                 <th>รูปภาพ</th>
-                <th>ลิงก์แบบฟอร์ม</th>
+                <?php if ($_SESSION['role'] !== 'admin'): ?>
+                    <th>เพิ่มลงตะกร้า</th>
+                <?php endif; ?>
                 <?php if ($_SESSION['role'] === 'admin'): ?>
                     <th>แก้ไข</th>
                     <th>ลบ</th>
@@ -70,7 +72,7 @@ $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตา�
             </tr>
         </thead>
         <tbody>
-        <?php  
+        <?php
             if ($selectedCategory !== 'ทั้งหมด' && $searchKeyword !== '') {
                 $stmt = $connect->prepare("SELECT * FROM menu WHERE category = ? AND name LIKE ?");
                 $likeKeyword = "%{$searchKeyword}%";
@@ -92,7 +94,7 @@ $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตา�
                 $result = mysqli_query($connect, "SELECT * FROM menu");
             }
 
-            while($row = mysqli_fetch_assoc($result)):
+            while ($row = mysqli_fetch_assoc($result)):
         ?>
             <tr>
                 <td><?= htmlspecialchars($row['name']) ?></td>
@@ -106,16 +108,21 @@ $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตา�
                         ไม่มีรูป
                     <?php endif; ?>
                 </td>
-                <td>
-                    <?php if (!empty($row['comment'])): ?>
-                        <a href="<?= htmlspecialchars($row['comment']) ?>" target="_blank">ลิงก์</a>
-                    <?php else: ?>
-                        -
-                    <?php endif; ?>
-                </td>
+
+                <?php if ($_SESSION['role'] !== 'admin'): ?>
+                    <td>
+                        <form method="post" action="cart.php" class="d-inline">
+                            <input type="hidden" name="menu_id" value="<?= $row['id'] ?>">
+                            <input type="hidden" name="name" value="<?= htmlspecialchars($row['name']) ?>">
+                            <input type="hidden" name="price" value="<?= $row['price'] ?>">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">เพิ่มลงตะกร้า</button>
+                        </form>
+                    </td>
+                <?php endif; ?>
+
                 <?php if ($_SESSION['role'] === 'admin'): ?>
-                    <td><a href="update_page.php?id=<?= $row['id'] ?>" class="btn btn-success">แก้ไข</a></td>
-                    <td><a href="delete_page.php?id=<?= $row['id'] ?>" class="btn btn-danger" onclick="return confirm('แน่ใจว่าจะลบเมนูนี้?')">ลบ</a></td>
+                    <td><a href="update_page.php?id=<?= $row['id'] ?>" class="btn btn-success btn-sm">แก้ไข</a></td>
+                    <td><a href="delete_page.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('แน่ใจว่าจะลบเมนูนี้?')">ลบ</a></td>
                 <?php endif; ?>
             </tr>
         <?php endwhile; ?>
@@ -124,21 +131,21 @@ $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตา�
   </div>
 </div>
 
-<!-- Modal สำหรับเพิ่มเมนู -->
+<!-- Modal สำหรับเพิ่มเมนูเครื่องดื่ม -->
 <div class="modal fade" id="exampleModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <form action="insert_data.php" method="post" enctype="multipart/form-data">
         <div class="modal-header">
-          <h1 class="modal-title fs-5">เพิ่มเมนูอาหาร</h1>
+          <h1 class="modal-title fs-5">เพิ่มเมนูเครื่องดื่ม</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-              <label>ชื่อเมนูอาหาร</label>
+          <div class="form-group mb-2">
+              <label>ชื่อเมนูเครื่องดื่ม</label>
               <input type="text" name="name" class="form-control" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-2">
               <label>หมวดหมู่</label>
               <select name="category" class="form-control" required>
                   <?php foreach (array_slice($categories, 1) as $cat): ?>
@@ -146,17 +153,13 @@ $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตา�
                   <?php endforeach; ?>
               </select>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-2">
               <label>ราคา</label>
               <input type="number" step="0.01" name="price" class="form-control" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-2">
               <label>รูปภาพ</label>
               <input type="file" name="image" class="form-control">
-          </div>
-          <div class="form-group">
-              <label>ลิงก์แบบฟอร์ม</label>
-              <input type="text" name="comment" class="form-control">
           </div>
         </div>
         <div class="modal-footer">
@@ -168,7 +171,6 @@ $categories = ['ทั้งหมด', 'กาแฟ', 'ชา', 'อิตา�
   </div>
 </div>
 
-<!-- Bootstrap Script -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

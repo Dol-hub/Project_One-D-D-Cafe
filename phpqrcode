@@ -1,0 +1,15 @@
+<?php
+include('phpqrcode/qrlib.php');  // ใช้เส้นทางที่ถูกต้องของไฟล์ phpqrcode.php
+
+// ข้อมูลที่ต้องการเก็บใน QR Code
+$data = "https://www.example.com/";  // หรือข้อมูลการชำระเงิน
+
+// กำหนดชื่อไฟล์ที่สร้าง
+$fileName = 'qrcode.jpg';
+
+// สร้าง QR Code
+QRcode::png($data, $fileName);
+
+// แสดง QR Code
+echo '<img src="' . $fileName . '" alt="QR Code">';
+?>
